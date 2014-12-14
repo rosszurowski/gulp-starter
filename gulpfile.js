@@ -1,12 +1,16 @@
+/**
+ * 
+ * 
+ */
+
+// global
 var root = require('app-root-path').path;
-var env  = process.env.NODE_ENV || 'development';
+var env = process.env.NODE_ENV || 'development';
 // gulp
 var gulp = require('gulp');
 var check = require('gulp-if');
-var colors = require('colors');
 var plumber = require('gulp-plumber');
 var sourcemaps = require('gulp-sourcemaps');
-// file system
 var del = require('del');
 // css
 var sass = require('gulp-sass');
@@ -21,7 +25,7 @@ var report = require('jshint-stylish');
 
 
 // configuration
-var config = prefix({
+var config = {
 	build: 'build/',
 	src: 'source/',
 	js: {
@@ -31,8 +35,9 @@ var config = prefix({
 		entry: 'css/styles.scss',
 		src: 'css/**/*.scss' },
 	assets: {
-		src: ['index.html']
-	}}, ['js', 'css', 'html', 'assets']);
+		src: 'index.html' }}
+	
+config = parse(config);
 
 /**
  * Clean build directory
@@ -79,7 +84,7 @@ gulp.task('styles', function() {
 		.pipe(errors())
 		.pipe(sourcemaps.init())
 			.pipe(sass())
-			.pipe(autoprefix())
+			.pipe(prefix('last 2 versions', '>1%'))
 			.pipe(check(env === 'production', csso()))
 		.pipe(sourcemaps.write())
 		.pipe(out());
@@ -118,7 +123,7 @@ function duo(opts) {
 function src(glob) { return gulp.src(glob, { base: config.src }); }
 function out() { return gulp.dest(config.build); }
 function errors() { return plumber({ errorHandler: handler }); }
-function handler(err) { console.log('[Error] '.red, err.message); }
+function handler(err) { console.log('\u001b[31m[Error]\u001b[39m', err.message); }
 
 /**
  * Prefix config attributes with the specified source directory
@@ -126,12 +131,13 @@ function handler(err) { console.log('[Error] '.red, err.message); }
  * @param {Array} prefixKeys
  * @returns {Object}
  */
-function prefix(opts, keys) {
+function parse(opts) {
 	var utils = require('lodash');
 	utils.mixin(require('lodash-deep'));
 
 	if (!opts.src) return opts;
 
+	var keys = ['js', 'css', 'html', 'assets']
 	keys = keys.filter(function(key) {
 		return !!opts[key];
 	});
