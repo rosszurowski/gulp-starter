@@ -1,30 +1,38 @@
+# Paths
+SOURCE = ./source
+BUILD  = ./build
+
+# Globs
+SCRIPTS = $(shell find $(SOURCE)/js -type f -name '*.js')
+STYLES  = $(shell find $(SOURCE)/css -type f -name '*.scss')
+
 # Default tasks
 all: build
 	@true
 build: assets scripts styles
-assets: build/index.html
-scripts: build/assets/index.js
-styles: build/assets/styles.css
+assets: $(BUILD)/index.html
+scripts: $(BUILD)/assets/index.js
+styles: $(BUILD)/assets/styles.css
 
 
 # Copy assets
-build/%.png: source/%.png
+$(BUILD)/%.png: $(SOURCE)/%.png
 	@mkdir -p $(@D)
 	@cp $< $@
-build/%.html: source/%.html
+$(BUILD)/%.html: $(SOURCE)/%.html
 	@mkdir -p $(@D)
 	@cp $< $@
 
 # Compile scripts with Duo
-build/assets/index.js: $(wildcard ./source/js/**/*.js)
+$(BUILD)/assets/index.js: $(SCRIPTS)
 	@mkdir -p $(@D)
-	@duo ./source/js/index.js --quiet --stdout > $@
+	@duo $(SOURCE)/js/index.js --quiet --stdout > $@
 
 
 # Compile styles with sass
-build/assets/styles.css: $(wildcard ./source/css/**/*.scss)
+$(BUILD)/assets/styles.css: $(STYLES)
 	@mkdir -p $(@D)
-	@sassc --sourcemap --load-path ./source/css/ source/css/styles.scss $@
+	@sassc --sourcemap --load-path $(SOURCE)/css/ $(SOURCE)/css/styles.scss $@
 	@autoprefixer $@ --clean --browsers "last 2 versions"
 
 # Clean built directories
