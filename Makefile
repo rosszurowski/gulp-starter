@@ -23,10 +23,10 @@ $(BUILD)/%.html: $(SOURCE)/%.html
 	@mkdir -p $(@D)
 	@cp $< $@
 
-# Compile scripts with Duo
+# Compile scripts with Browserify
 $(BUILD)/assets/index.js: $(SCRIPTS)
 	@mkdir -p $(@D)
-	@duo $(SOURCE)/js/index.js --quiet --stdout > $@
+	@browserify $(SOURCE)/js/index.js -o $@
 
 
 # Compile styles with sass
