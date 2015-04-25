@@ -1,0 +1,16 @@
+{
+  "name": "starter",
+  "version": "0.0.1",
+  "description": "A starter project.",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {
+  },
+  "devDependencies": {
+    "babelify": "^6.0.2",
+    "browserify": "^9.0.8",
+    "budo": "^4.0.0"
+  },
+  "author": "Ross Zurowski",
+  "license": "MIT"
+}
