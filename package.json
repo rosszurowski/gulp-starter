@@ -5,6 +5,7 @@
   "main": "index.js",
   "private": true,
   "dependencies": {
+    "garnish": "^2.1.3"
   },
   "devDependencies": {
     "babelify": "^6.0.2",

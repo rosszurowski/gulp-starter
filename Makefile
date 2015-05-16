@@ -25,17 +25,11 @@ all: assets scripts styles
 	@true
 
 develop:
-	@echo "  "
-	@echo "  \033[0;32mDevelopment server is running...\033[0m"
-	@echo "  Listening on http://localhost:$(PORT)"
-	@echo "  \033[0;90mCtrl+C to shut down\033[0m"
-	@echo "  "
-	@budo $(SOURCE)/js/index.js:assets/index.js \
+	@$(BIN)/budo $(SOURCE)/js/index.js:assets/index.js \
 		--dir $(BUILD) \
 		--port $(PORT) \
 		--transform babelify \
-		--no-stream \
-		--live & watch make --silent assets styles
+		--live | $(BIN)/garnish & watch make --silent assets styles
 
 install: node_modules
 
