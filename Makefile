@@ -24,12 +24,17 @@ STYLES  = $(shell find $(SOURCE)/css -type f -name '*.scss')
 all: assets scripts styles
 	@true
 
-develop:
+develop: install
+	@make -j2 develop-server develop-assets
+
+develop-server:
 	@$(BIN)/budo $(SOURCE)/js/index.js:assets/index.js \
 		--dir $(BUILD) \
 		--port $(PORT) \
 		--transform babelify \
-		--live | $(BIN)/garnish & watch make --silent assets styles
+		--live | $(BIN)/garnish
+develop-assets:
+	@watch make assets styles --silent
 
 install: node_modules
 
@@ -63,7 +68,7 @@ $(BUILD)/assets/index.js: $(SCRIPTS)
 $(BUILD)/assets/styles.css: $(STYLES)
 	@mkdir -p $(@D)
 	@sassc --sourcemap --load-path $(SOURCE)/css/ $(SOURCE)/css/styles.scss $@
-	@autoprefixer $@ --clean --map --browsers "last 2 versions"
+	@$(BIN)/autoprefixer $@ --clean --map --browsers "last 2 versions"
 
 #
 # Phony
