@@ -10,15 +10,18 @@ BIN := ./node_modules/.bin
 # Variables
 #
 
-PORT     = 8080
-SOURCE   = ./source
-BUILD    = ./build
+HOST   ?= localhost
+PORT   ?= 8080
 
-SCRIPTS  = $(shell find $(SOURCE)/js  -type f -name '*.js')
-STYLES   = $(shell find $(SOURCE)/css -type f -name '*.scss')
+SOURCE  = ./source
+BUILD   = ./build
 
-ARGS     = -t [ babelify --loose all ] -t envify -t uglifyify
-BROWSERS = "last 2 versions"
+SCRIPTS = $(shell find $(SOURCE)/js  -type f -name '*.js')
+STYLES  = $(shell find $(SOURCE)/css -type f -name '*.css')
+
+ARGS      = -t [ babelify --loose all ] -t envify -t uglifyify
+BROWSERS  = "last 2 versions"
+NODE_ENV ?= development
 
 #
 # Tasks
@@ -64,12 +67,13 @@ $(BUILD)/%: $(SOURCE)/%
 
 $(BUILD)/assets/index.js: $(SCRIPTS)
 	@mkdir -p $(@D)
-	@browserify $(ARGS) $(SOURCE)/js/index.js -o $@
+	@$(BIN)/browserify $(ARGS) $(SOURCE)/js/index.js -o $@
 
 $(BUILD)/assets/styles.css: $(STYLES)
 	@mkdir -p $(@D)
-	@sassc --sourcemap --load-path $(SOURCE)/css/ $(SOURCE)/css/styles.scss $@
-	@$(BIN)/autoprefixer $@ --clean --map --browsers $(BROWSERS)
+	@if [ $(NODE_ENV) == "development" ]; then $(BIN)/cssnext --sourcemap --browsers $(BROWSERS) $< $@; fi
+	@if [ $(NODE_ENV) == "production" ]; then $(BIN)/cssnext --compress --browsers $(BROWSERS) $< $@; fi
+
 
 #
 # Phony
