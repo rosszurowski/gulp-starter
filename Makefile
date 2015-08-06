@@ -3,7 +3,7 @@
 # Binaries
 #
 
-export PATH := ./node_modules/.bin/:$(PATH)
+export PATH := ./node_modules/.bin:$(PATH)
 BIN := ./node_modules/.bin
 
 #
@@ -16,12 +16,11 @@ PORT   ?= 8080
 SOURCE  = ./source
 BUILD   = ./build
 
-SCRIPTS = $(shell find $(SOURCE)/js  -type f -name '*.js')
-STYLES  = $(shell find $(SOURCE)/css -type f -name '*.css')
+SCRIPTS = $(shell find $(SOURCE)/**/*.js)
+STYLES  = $(shell find $(SOURCE)/**/*.css)
 
-ARGS      = -t [ babelify --loose all ] -t envify -t uglifyify
+TRANSFORM = [ babelify --loose all ]
 BROWSERS  = "last 2 versions"
-NODE_ENV ?= development
 
 #
 # Tasks
@@ -33,11 +32,11 @@ develop: install
 	@make -j2 develop-server develop-assets
 
 develop-server:
-	@$(BIN)/budo $(SOURCE)/js/index.js:assets/index.js \
+	@budo $(SOURCE)/js/index.js:assets/index.js \
 		--dir $(BUILD) \
 		--port $(PORT) \
 		--live \
-		-- $(ARGS) | $(BIN)/garnish
+		-- -t $(TRANSFORM) | garnish
 develop-assets:
 	@watch make assets styles --silent
 
@@ -65,18 +64,16 @@ $(BUILD)/%: $(SOURCE)/%
 	@mkdir -p $(@D)
 	@cp $< $@
 
-$(BUILD)/assets/index.js: $(SCRIPTS)
+$(BUILD)/assets/%.js: $(SCRIPTS)
 	@mkdir -p $(@D)
-	@$(BIN)/browserify $(ARGS) $(SOURCE)/js/index.js -o $@
+	@browserify -t $(TRANSFORM) $(SOURCE)/js/index.js -o $@
 
-$(BUILD)/assets/styles.css: $(STYLES)
+$(BUILD)/assets/%.css: $(STYLES)
 	@mkdir -p $(@D)
-	@if [ $(NODE_ENV) == "development" ]; then $(BIN)/cssnext --sourcemap --browsers $(BROWSERS) $< $@; fi
-	@if [ $(NODE_ENV) == "production" ]; then $(BIN)/cssnext --compress --browsers $(BROWSERS) $< $@; fi
-
+	@cssnext --browsers $(BROWSERS) --sourcemap  $< $@
 
 #
-# Phony
+# These tasks will be run every time regardless of dependencies.
 #
 
 .PHONY: develop clean
